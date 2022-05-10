@@ -5,7 +5,7 @@ function LogSign({ setUser }) {
   const [loggingIn, setLoggingIn] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const [error, setError] = useState();
   function handleRegister(e) {
     e.preventDefault();
     axios
@@ -13,8 +13,12 @@ function LogSign({ setUser }) {
       .then((res) => {
         setUsername("");
         setPassword("");
-        window.localStorage.setItem("user", JSON.stringify(res.data));
-        setUser(res.data);
+        if (res.data._id) {
+          window.localStorage.setItem("user", JSON.stringify(res.data));
+          setUser(res.data);
+        } else {
+          setError(res.data);
+        }
       });
   }
   function handleLogin(e) {
@@ -22,8 +26,13 @@ function LogSign({ setUser }) {
     axios
       .post("http://localhost:3001/user/login", { username, password })
       .then((res) => {
-        window.localStorage.setItem("user", JSON.stringify(res.data));
-        setUser(res.data);
+        if (res.data._id) {
+          window.localStorage.setItem("user", JSON.stringify(res.data));
+          setError(null);
+          setUser(res.data);
+        } else {
+          setError(res.data);
+        }
       });
   }
   return (
@@ -61,7 +70,8 @@ function LogSign({ setUser }) {
       >
         {loggingIn ? "Entrar" : "Cadastrar"}
       </button>
-      <p className="self-center mt-12 text-gray-500">
+      {error && <p className="pt-2 self-center text-red-400">{error}</p>}
+      <p className="self-center mt-4 text-gray-500">
         {loggingIn ? "Não tem uma conta?" : "Já tem uma conta?"}
         <span
           className="text-green-700 underline pl-2 cursor-pointer"

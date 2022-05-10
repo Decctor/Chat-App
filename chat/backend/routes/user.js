@@ -37,6 +37,7 @@ router.post("/login", async (req, res) => {
       throw "Senha não permitida.";
     }
     let userOnDb = await User.findOne({ username: username });
+    if (!userOnDb) throw "Usuário inexistente";
     if (password == userOnDb.password) {
       res.json(userOnDb);
     } else {
